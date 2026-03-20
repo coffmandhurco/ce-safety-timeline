@@ -1,0 +1,409 @@
+{
+  "tasks": [
+    {
+      "name": "CE Safety Compliance - EU Machinery Directive",
+      "start": "2026-01-01",
+      "end": "2026-07-16",
+      "progress": 25,
+      "ado": "58647",
+      "note": "Master tracking item. 3/5/2026 meeting held. 13 action items generated.",
+      "group": "Standards & Requirements"
+    },
+    {
+      "name": "Safety PLC Hardware",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 40,
+      "ado": "10876",
+      "note": "Rev B prototypes received 2023. HAL training TBD.",
+      "group": "SafePLC"
+    },
+    {
+      "name": "CE Requirements & Constraints Discovery",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 10,
+      "ado": "62597",
+      "note": "Backlog.",
+      "group": "Standards & Requirements"
+    },
+    {
+      "name": "Safety PLC Integration Schematic",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 20,
+      "ado": "26888",
+      "note": "Draft schematics attached. Schematic updates assigned.",
+      "group": "SafePLC"
+    },
+    {
+      "name": "SafePLC - Machine Integration & Testing",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 10,
+      "ado": "62602",
+      "note": "SafePLC will NOT be used for EU retrofit (Stewart, 3/16/2026). Testing continues for production.",
+      "group": "Retrofit & Deployment"
+    },
+    {
+      "name": "SafePLC - Test with Rexroth ctrlX Drives",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 30,
+      "ado": "62620",
+      "note": "FSoE running on ctrlX demo. HAL found firmware issue, working on fix (Nov 2025).",
+      "group": "Drive & Encoder Compliance"
+    },
+    {
+      "name": "SafePLC - Test with Yaskawa Sigma-X Drives",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 10,
+      "ado": "62621",
+      "note": "Backlog. Depends on safety card and EniBuilder.",
+      "group": "Drive & Encoder Compliance"
+    },
+    {
+      "name": "SafePLC - PLC Program Development",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 5,
+      "ado": "62625",
+      "note": "Backlog.",
+      "group": "SafePLC"
+    },
+    {
+      "name": "SafePLC - Yaskawa Sigma-X PLC Program",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 5,
+      "ado": "62626",
+      "note": "Backlog.",
+      "group": "SafePLC"
+    },
+    {
+      "name": "SafePLC - Rexroth ctrlX PLC Program",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 5,
+      "ado": "62627",
+      "note": "Backlog.",
+      "group": "SafePLC"
+    },
+    {
+      "name": "SafePLC - Safety PLC Hardware",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 50,
+      "ado": "62628",
+      "note": "Initial hardware done. New WinPC32 safety blocks expected end of March 2026.",
+      "group": "SafePLC"
+    },
+    {
+      "name": "SafePLC - Add ECAT Device Support (EniBuilder)",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 40,
+      "ado": "62630",
+      "note": "FSoE tested with SGDX + MB on bench (Feb 2026). Next: CtrlX FSoE config in EniBuilder.",
+      "group": "SafePLC"
+    },
+    {
+      "name": "SafePLC - Production Retrofit Kits",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 10,
+      "ado": "62640",
+      "note": "Scoped for SafePLC production kits only (not EU retrofit). Part numbers to go on cabinet/frame drawings.",
+      "group": "Retrofit & Deployment"
+    },
+    {
+      "name": "SafePLC - Beta Testing / Customer Installs",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 5,
+      "ado": "62648",
+      "note": "Waiting on HAL ladder logic blocks (end March) + hardware order. Test at HCM.",
+      "group": "Retrofit & Deployment"
+    },
+    {
+      "name": "Z Axis Brake Requirement",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 5,
+      "ado": "63886",
+      "note": "Yaskawa 400V SGDX brake + safety encoder delayed to end 2025.",
+      "group": "Drive & Encoder Compliance"
+    },
+    {
+      "name": "Delta FSoE / SIL2 SLS for CE",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 25,
+      "ado": "64593",
+      "note": "Delta A3-EP confirmed SIL3/FSoE. Safety card requested, not received. Moved to backlog (Mar 2026).",
+      "group": "Drive & Encoder Compliance"
+    },
+    {
+      "name": "Gennertec Replacement Compliance (LCM)",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 0,
+      "ado": "67900",
+      "note": "STALLED. Waiting on LCM response since Dec 2025.",
+      "group": "Drive & Encoder Compliance"
+    },
+    {
+      "name": "VCX Renishaw",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 10,
+      "ado": "67902",
+      "note": "In Progress per ADO.",
+      "group": "Drive & Encoder Compliance"
+    },
+    {
+      "name": "Coded Door Interlocks Investigation",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 50,
+      "ado": "68200",
+      "note": "Ian investigated: can avoid high coding via defeat detection/prevention measures (Jan 2026). Cyclic monitoring needed (v11 PLC changes).",
+      "group": "Door & Guard Safety"
+    },
+    {
+      "name": "EU Retrofit Kit (non-SafePLC)",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 20,
+      "ado": "72188",
+      "note": "Covers safety cards, PILZ, door mods. Additional PILZ linked (Michael, Mar 2026). Single vs dual PILZ TBD.",
+      "group": "Retrofit & Deployment"
+    },
+    {
+      "name": "Spindle Drive Overspeed Warning (CE)",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 60,
+      "ado": "56752",
+      "note": "TTL encoder parallel to HSIO-SENC4 verified on VMX42SRTi (Jan 2026). No splitter needed.",
+      "group": "Drive & Encoder Compliance"
+    },
+    {
+      "name": "Line Filter Retrofit Kits",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 25,
+      "ado": "67938",
+      "note": "HML provided filter list. Stewart reviewing. PPAs being created (Joyce, Mar 2026).",
+      "group": "Retrofit & Deployment"
+    },
+    {
+      "name": "Tool Position Jumps When Shutting Door",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 5,
+      "ado": "42780",
+      "note": "Ready state in ADO.",
+      "group": "Door & Guard Safety"
+    },
+    {
+      "name": "Chip Auger CE Conformance",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 70,
+      "ado": "68050",
+      "note": "Kit 003-0102-058 created. ECN 21879 approved. HML implementing across regions.",
+      "group": "Door & Guard Safety"
+    },
+    {
+      "name": "EN ISO 16090-1:2018 Replacing EN12417",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 15,
+      "ado": "68052",
+      "note": "In Progress per ADO.",
+      "group": "Standards & Requirements"
+    },
+    {
+      "name": "Door Switch Manual Release Fix",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 60,
+      "ado": "68060",
+      "note": "TLS3-GD2 wiring confirmed (Stewart). PPA 404-4403-008 updated (Joyce, 3/9/2026). GDS1 cover lost, needs reorder.",
+      "group": "Door & Guard Safety"
+    },
+    {
+      "name": "Manual Instructions - Trapped Persons",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 40,
+      "ado": "68063",
+      "note": "Donna updated manual text (Feb 2026). Awaiting confirmation of release (Ryan, Mar 2026).",
+      "group": "Door & Guard Safety"
+    },
+    {
+      "name": "Pinch Point Warning Labels",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 30,
+      "ado": "68065",
+      "note": "Label 703-1006-024 identified. HML clarifying scope: all regions? all machines? (Tim questions, Mar 2026).",
+      "group": "Door & Guard Safety"
+    },
+    {
+      "name": "Side Door Captive Screws (Fixed Guard)",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 65,
+      "ado": "68074",
+      "note": "E4 retaining rings tested and approved by Nick. HML proceeding for all EU machines, all brands.",
+      "group": "Door & Guard Safety"
+    },
+    {
+      "name": "Taiwan - Console E-Stop Yellow Background",
+      "start": "2026-01-01",
+      "end": "2026-06-01",
+      "progress": 0,
+      "ado": "65533",
+      "note": "New. Not started.",
+      "group": "Retrofit & Deployment"
+    },
+    {
+      "name": "New Task",
+      "start": "2026-03-19",
+      "end": "2026-04-02",
+      "progress": 0,
+      "ado": "65533",
+      "note": "",
+      "group": ""
+    }
+  ],
+  "milestones": [],
+  "procurement": [
+    {
+      "item": "2x SafePLC with encoder",
+      "po": "",
+      "status": "Approvals",
+      "note": ""
+    },
+    {
+      "item": "7x Sigma-5 safety cards",
+      "po": "",
+      "status": "Approvals",
+      "note": ""
+    }
+  ],
+  "actionItems": [
+    {
+      "what": "Interlock permanent fixture: All interlocks must use one-way screws. Retrofit machines may need screw heads ground off or interlock relocated out of reach. Need to determine if this requires a new work item or falls under existing retrofit scope (#72188).\n\nUPDATE: HML is actively implementing captive screws with E4 retaining rings per #68074 (34 comments of discussion). Solution tested, Nick approved, HML proceeding. Applies to all EU machines, all brands.",
+      "who": "",
+      "status": "In Progress",
+      "date": "2026-03-05"
+    },
+    {
+      "what": "Safety card encoder compatibility: Confirm safety card works with ALL encoder types used on torque motors (VCX table, SRT B/C, single-encoder feedback). Also determine if these encoders meet MTTF/SIL2 requirements â€” Fred has the spreadsheet for this. - attached to #58647",
+      "who": "Dave",
+      "status": "Open",
+      "date": "2026-03-05"
+    },
+    {
+      "what": "ANSWERED â€” Rotary axes require SIL2, NOT SIL3. Per ISO 16090-1:2022 Annex J: PLr d / Cat 3 / SIL 2 for safety stop on guard opening, prevention of unexpected startup, SLS at 15 m/min or 50 rpm. Yaskawa mechanical tables OK with safety card (direct encoder not in safety loop).",
+      "who": "",
+      "status": "Done",
+      "date": "2026-03-05"
+    },
+    {
+      "what": "Confirm add-on rotary tables per division: Hurco-provided tables with Yaskawa drives should comply using safety card â€” NEEDS CONFIRMED. Each division must evaluate their own add-on tables.   Confirmed, universal rotary table uses sigma-5 which does work with the safety card.",
+      "who": "",
+      "status": "Done",
+      "date": "2026-03-05"
+    },
+    {
+      "what": "Cytec heads: Identify what motors, drives, and encoders are used. Needed to determine safety card applicability and SIL2 compliance.",
+      "who": "",
+      "status": "Open",
+      "date": "2026-03-05"
+    },
+    {
+      "what": "Rexroth lathe spindles: Confirm whether safety card is already present but unused, needs to be added, or if spindle simply cannot run with door open. Applies to lathe models with Rexroth-driven spindles. (need input from BrandonK or MingC)",
+      "who": "",
+      "status": "Open",
+      "date": "2026-03-05"
+    },
+    {
+      "what": "Barfeeders: Must be wired into machine estop and cannot feed with door open. Confirm if current implementation already prevents this â€” if not, may need to wire into door circuit. Likely needs a work item. (electrical needs to confirm schematics are correct)",
+      "who": "",
+      "status": "Open",
+      "date": "2026-03-05"
+    },
+    {
+      "what": "PILS for deadman / hold-to-run on v11 lathes: RJU needs PILS for jogging linear axes (and maybe Rexroth C axis) with doors open. Retrofit side already captured in #72188 description (\"Additional PILZ for hold-to-run button second contact\"). Production machines need this scoped too.",
+      "who": "",
+      "status": "Done",
+      "date": "2026-03-05"
+    },
+    {
+      "what": "DCX door switches: Manual releases must be on inside of enclosure.",
+      "who": "",
+      "status": "In Progress",
+      "date": "2026-03-05"
+    },
+    {
+      "what": "Milltronics / Delta: Inspire+ is good for deadman and 2-hand control to cabinet. Delta FSoE already tracked in #64593.\n\nUPDATE: Delta A3 drives confirmed SIL3/FSoE capable with safety card (per Stewart & Ian in #64593, Oct 2025). Stewart requested safety card from Delta for testing. STILL OPEN: Does each Milltronics model need a PILS unit?",
+      "who": "Stu",
+      "status": "In Progress",
+      "date": "2026-03-05"
+    },
+    {
+      "what": "Procobots: Evaluate safety requirements. No details from 3/5 meeting â€” need to define scope.",
+      "who": "",
+      "status": "Open",
+      "date": "2026-03-05"
+    },
+    {
+      "what": "Define ALL retrofit kits and production changes ASAP â€” especially long lead items. Door interlocks need cyclic monitoring which requires v11 PLC changes. Retrofit kits tracked in #72188 (non-SafePLC) and #62640 (SafePLC). Production changes need scoping. - repurposed #62640 from safe plc to production changes",
+      "who": "Stu",
+      "status": "Open",
+      "date": "2026-03-05"
+    },
+    {
+      "what": "DECISION NEEDED: Repurpose #62640 (Safety PLC - Create retrofit kits) for production changes? #72188 already covers non-SafePLC retrofits for Europe. Having both is confusing â€” clarify scope or merge.\n\nUPDATE: Stewart confirmed in #62602 (3/16/2026) that SafePLC will NOT be used to retrofit EU machines. So: #72188 = retrofit kits (safety cards, PILZ, door mods, no SafePLC). #62640 = SafePLC production kits. Both are needed, different scope.",
+      "who": "",
+      "status": "Done",
+      "date": "2026-03-05"
+    }
+  ],
+  "meetingNotes": [
+    {
+      "date": "2026-03-05",
+      "notes": "Meeting 3/5/2026:  Ryan, Dave, Paul, Ian, Michael, Robert attending. \n\n\nâ€¢\tDoor interlocks need cyclic monitoring to avoid high coded interlocks. *** v11 PLC changes needed.  \nâ€¢\tAll interlocks must be permanently fixtured, one way screws.***  Retrofit machines could have the screw heads ground off.  OR possible to move the interlock so it is not accessible.        \nâ€¢\tA1000 and SD + current motor and encoder cannot use saftey card.  We must not allow the spindle to run wit hthe doors open. \nâ€¢\tAny torque motor (single encoder feedback, VCX table, SRT B and C, etc) will need the saftey cards.  Need to confirm if card will work with all encoder types.  Also need to determine these encoders meet the MTTF/SIL2 (Fred spreadsheet).  \nâ€¢\tDo rotary axes need to meet SIL3? \no\tMechanical tables using yaskawa motors should be ok with the saftey card.  Direct encoder is not used in saftey loop with the drive and card.  \no\tAdd on rotary tables must be evaluated per division.  We believe Hurco provided tables using yaskawa drives will comply if using the saftey card, NEEDS CONFIRMED.\no\tCytec heads, evaluate what motors/drives/encoders are used.\nâ€¢\tLathes:  Machines with A1000 driven spindles must not run with the door open. TM, TMX plain.  Live tool models cannot run the live tool with the doors open. \nâ€¢\tLathes with rexroth driven spindles either the spindle cannot run with the door open OR the saftey may need to be added or is there but not currently used.  NEEDS CONFIRMED.\nâ€¢\tTurrets cannot index with the doors open because A1000 cannot run with the door open.  On MAX5 the 2 hand control is not saftey rated because it is using CANBus.      \nâ€¢\tv11 lathes need the added PILS for deadman on RJU for jogging linear axes (maybe rexroth driven C) with the doors open.\nâ€¢\tLathes with yaskawa drives (sigma 5/10) need saftey cards.  \nâ€¢\tBarfeeders?  Must be wired into machine estop.  Cannot feed with the door open, do we currently do this?******  May need to be wired in with door circuit.   \nâ€¢\tATC not allowed with door open*******  ouch.\nâ€¢\tLine filters must be used and tested for EMI worst case senarios per machine class (TMX plain, TMX10MYS, VMX42SRT, VC500, VCX600).  \no\tIf MYS passes we can assume Rexroth systems with line filters are ok for EMI (DCX, HBMX, etc).    \nâ€¢\tDCX fix door switches, manual releases must be on inside of enclosure.  \nâ€¢\tMilltronics?  Delta.  Inspire plus is good for deadman and 2 hand control to the cabinet.  PILS unit may need to be added for each.  \nâ€¢\tProcobots?        \nâ€¢\tDefine all retrofit kits and production changes.  ASAP.  Especially long lead items. ******\nâ€¢\tTakumi?  Where is CE technical file?  Located here:  https://hurcocompany.sharepoint.com/sites/Partner/Takumi/Certifications/Forms/AllItems.aspx  \n\n"
+    }
+  ],
+  "links": [
+    {
+      "label": "Standards",
+      "url": "https://hurcocompany.sharepoint.com/sites/Partner/CQuality/CE/Forms/AllItems.aspx?id=%2Fsites%2FPartner%2FCQuality%2FCE%2FStandard%2C%20Guides%2C%20Training%20Materials%20and%20Working%20Documents%2FInternational%20Standards&viewid=63231aff%2Dfeae%2D4bc5%2D9bd6%2D7e8729f3171e"
+    },
+    {
+      "label": "Hurco Technical File",
+      "url": "https://hurcocompany.sharepoint.com/sites/Partner/CQuality/CE/Forms/AllItems.aspx"
+    },
+    {
+      "label": "Milltronics Technical File",
+      "url": "https://hurcocompany.sharepoint.com/sites/Partner/MilltronicsUSA/CE%20Technical%20File/Forms/AllItems.aspx"
+    },
+    {
+      "label": "Takumi Technical File",
+      "url": "https://hurcocompany.sharepoint.com/sites/Partner/Takumi/Certifications/Forms/AllItems.aspx"
+    }
+  ],
+  "groups": [
+    "Standards & Requirements",
+    "SafePLC",
+    "Drive & Encoder Compliance",
+    "Door & Guard Safety",
+    "Retrofit & Deployment"
+  ]
+}

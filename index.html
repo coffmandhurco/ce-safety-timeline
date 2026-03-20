@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CE Safety</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Segoe UI", system-ui, sans-serif; background: #f8f9fa; color: #333; padding: 20px; }
+h1 { font-size: 1.4em; margin-bottom: 4px; }
+.subtitle { color: #888; font-size: 0.85em; margin-bottom: 16px; }
+.controls { margin-bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.controls button { padding: 6px 14px; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer; font-size: 0.85em; }
+.controls button:hover { background: #e9ecef; }
+.controls button.primary { background: #2196F3; color: #fff; border-color: #2196F3; }
+.controls button.primary:hover { background: #1976D2; }
+.controls button.danger { color: #d32f2f; }
+
+/* ── Gantt Chart ── */
+.gantt-container { background: #fff; border: 1px solid #dee2e6; border-radius: 6px; overflow-x: auto; margin-bottom: 24px; }
+.gantt { min-width: 900px; padding: 12px 16px; position: relative; }
+.gantt-header { display: flex; border-bottom: 2px solid #dee2e6; padding-bottom: 4px; margin-bottom: 2px; }
+.gantt-label-col { width: 240px; min-width: 240px; font-weight: 600; font-size: 0.8em; color: #666; }
+.gantt-bar-col { flex: 1; position: relative; }
+.gantt-months { display: flex; height: 20px; }
+.gantt-month { flex: 1; text-align: center; font-size: 0.75em; color: #888; border-left: 1px solid #eee; }
+.gantt-row { display: flex; align-items: center; height: 32px; border-bottom: 1px solid #f0f0f0; }
+.gantt-row:hover { background: #f8f9ff; }
+.gantt-row-label { width: 240px; min-width: 240px; font-size: 0.82em; padding-right: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gantt-row-bars { flex: 1; position: relative; height: 100%; }
+.gantt-bar { position: absolute; height: 20px; top: 6px; border-radius: 3px; min-width: 3px; cursor: pointer; transition: opacity 0.15s; }
+.gantt-bar:hover { opacity: 0.85; }
+.gantt-bar-progress { position: absolute; left: 0; top: 0; height: 100%; border-radius: 3px; opacity: 0.4; background: #000; }
+.gantt-bar.complete { background: #4CAF50; }
+.gantt-bar.in-progress { background: #2196F3; }
+.gantt-bar.not-started { background: #bdbdbd; }
+.gantt-bar.milestone { background: #FF9800; width: 12px !important; height: 12px; top: 10px; border-radius: 2px; transform: rotate(45deg); }
+.gantt-section { display: flex; align-items: center; height: 28px; }
+.gantt-section-label { width: 240px; min-width: 240px; font-weight: 700; font-size: 0.8em; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
+.gantt-group { display: flex; align-items: center; height: 26px; background: #f1f3f5; border-bottom: 1px solid #dee2e6; cursor: pointer; user-select: none; }
+.gantt-group:hover { background: #e9ecef; }
+.gantt-group-label { width: 240px; min-width: 240px; font-weight: 700; font-size: 0.8em; color: #1565c0; padding-left: 4px; }
+.gantt-group-toggle { font-size: 0.7em; margin-right: 4px; color: #90a4ae; }
+table.edit-table tr.group-header-row { background: #e8eaf6; }
+table.edit-table tr.group-header-row td { font-weight: 700; font-size: 0.85em; color: #1565c0; padding: 6px 8px; border-bottom: 2px solid #c5cae9; }
+
+/* ── Group Manager ── */
+.group-mgr { background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 10px 14px; margin-bottom: 16px; font-size: 0.85em; display: none; }
+.group-mgr.open { display: block; }
+.group-mgr .gm-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.group-mgr .gm-row input { border: 1px solid #ccc; padding: 3px 6px; border-radius: 3px; font-size: 0.95em; font-family: inherit; width: 200px; }
+.group-mgr .gm-row input:focus { border-color: #2196F3; outline: none; }
+.group-mgr .gm-row button { background: none; border: none; cursor: pointer; font-size: 0.9em; color: #bbb; padding: 0 3px; }
+.group-mgr .gm-row button:hover { color: #2196F3; }
+.group-mgr .gm-row .gm-del:hover { color: #d32f2f; }
+.group-mgr .gm-add { margin-top: 6px; }
+table.edit-table td a.ado-link { color: #2196F3; text-decoration: none; font-size: 0.85em; }
+table.edit-table td a.ado-link:hover { text-decoration: underline; }
+table.edit-table td .ado-id-wrap { display: flex; align-items: center; gap: 4px; }
+table.edit-table td .ado-id-wrap input { width: 90px; }
+table.edit-table td .ado-id-wrap span { display: flex; gap: 4px; flex-wrap: wrap; }
+.gantt-today { position: absolute; top: 0; bottom: 0; width: 2px; background: #d32f2f; z-index: 5; pointer-events: none; }
+.gantt-tooltip { position: fixed; background: #333; color: #fff; padding: 8px 12px; border-radius: 4px; font-size: 0.8em; pointer-events: none; z-index: 100; max-width: 300px; display: none; white-space: pre-line; line-height: 1.4; }
+
+/* ── Editable Tables ── */
+.section-title { font-size: 1.1em; font-weight: 600; margin: 20px 0 8px; display: flex; align-items: center; gap: 10px; }
+table.edit-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #dee2e6; border-radius: 6px; overflow: hidden; font-size: 0.85em; margin-bottom: 16px; }
+table.edit-table th { background: #f1f3f5; padding: 8px 10px; text-align: left; font-weight: 600; border-bottom: 2px solid #dee2e6; font-size: 0.85em; }
+table.edit-table td { padding: 5px 8px; border-bottom: 1px solid #eee; }
+table.edit-table td input, table.edit-table td select, table.edit-table td textarea { width: 100%; border: 1px solid transparent; background: transparent; padding: 3px 4px; font-size: 0.95em; font-family: inherit; border-radius: 3px; }
+table.edit-table td input:focus, table.edit-table td select:focus, table.edit-table td textarea:focus { border-color: #2196F3; background: #fff; outline: none; }
+table.edit-table td input[type="date"] { width: 130px; }
+table.edit-table td input[type="number"] { width: 60px; text-align: center; }
+table.edit-table td select { width: 120px; cursor: pointer; }
+table.edit-table .btn-del { background: none; border: none; color: #ccc; cursor: pointer; font-size: 1.1em; padding: 0 4px; }
+table.edit-table .btn-del:hover { color: #d32f2f; }
+table.edit-table .btn-move { background: none; border: none; color: #bbb; cursor: pointer; font-size: 0.85em; padding: 0 2px; line-height: 1; display: block; }
+table.edit-table .btn-move:hover { color: #2196F3; }
+table.edit-table .move-cell { display: flex; flex-direction: column; align-items: center; gap: 0; }
+table.edit-table tr.done-row { opacity: 0.35; }
+table.edit-table td textarea { resize: vertical; min-height: 28px; }
+.note-card { background: #fff; border: 1px solid #dee2e6; border-radius: 6px; margin-bottom: 8px; overflow: hidden; }
+.note-card-header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f8f9fa; cursor: pointer; user-select: none; border-bottom: 1px solid #eee; }
+.note-card-header:hover { background: #e9ecef; }
+.note-card-header .note-date { font-weight: 600; font-size: 0.9em; color: #333; }
+.note-card-header .note-preview { color: #888; font-size: 0.8em; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.note-card-header .note-toggle { font-size: 0.7em; color: #90a4ae; }
+.note-card-body { padding: 10px 12px; display: none; }
+.note-card-body.open { display: block; }
+.note-card-body textarea { width: 100%; min-height: 300px; border: 1px solid #dee2e6; border-radius: 4px; padding: 8px; font-family: inherit; font-size: 0.9em; line-height: 1.5; resize: vertical; }
+.note-card-body textarea:focus { border-color: #2196F3; outline: none; }
+.note-card-actions { display: flex; align-items: center; gap: 8px; padding: 0 12px 8px; }
+.note-card-actions input[type="date"] { border: 1px solid #dee2e6; border-radius: 3px; padding: 3px 6px; font-family: inherit; font-size: 0.85em; }
+.note-card-actions button { background: none; border: none; cursor: pointer; color: #bbb; font-size: 0.85em; padding: 2px 4px; }
+.note-card-actions button:hover { color: #d32f2f; }
+.save-notice { color: #4CAF50; font-size: 0.8em; margin-left: 12px; opacity: 0; transition: opacity 0.3s; }
+.save-notice.show { opacity: 1; }
+.sync-status { font-size: 0.75em; color: #888; margin-bottom: 4px; }
+.sync-status .warn { color: #e65100; }
+.settings-toggle { font-size: 0.8em; color: #888; cursor: pointer; text-decoration: underline; }
+.settings-toggle:hover { color: #2196F3; }
+.settings-panel { display: none; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 10px 14px; margin-bottom: 12px; font-size: 0.85em; }
+.settings-panel.open { display: block; }
+.settings-panel label { font-weight: 600; margin-right: 8px; }
+.settings-panel input[type="password"] { width: 400px; padding: 4px 8px; border: 1px solid #ccc; border-radius: 3px; font-family: monospace; font-size: 0.9em; }
+.settings-panel .pat-status { margin-left: 8px; font-size: 0.85em; }
+.ado-titles { font-size: 0.8em; color: #555; line-height: 1.3; }
+.ado-titles .fetching { color: #999; font-style: italic; }
+.ado-titles .error { color: #d32f2f; }
+.toggle-btn { font-size: 0.75em; color: #888; cursor: pointer; text-decoration: underline; font-weight: normal; }
+.toggle-btn:hover { color: #2196F3; }
+.section-add { font-size: 0.75em; padding: 2px 10px; border: 1px solid #ccc; border-radius: 3px; background: #fff; cursor: pointer; font-weight: normal; color: #555; }
+.section-add:hover { border-color: #2196F3; color: #2196F3; }
+
+/* ── Links Section ── */
+.links-section { background: #fff; border: 1px solid #dee2e6; border-radius: 6px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.85em; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.link-chip { display: inline-flex; align-items: center; gap: 4px; background: #e3f2fd; border: 1px solid #bbdefb; border-radius: 4px; padding: 5px 10px; font-size: 0.9em; }
+.link-chip a { color: #1565c0; text-decoration: none; font-weight: 500; }
+.link-chip a:hover { text-decoration: underline; }
+.link-chip .btn-edit { background: none; border: none; color: #90a4ae; cursor: pointer; font-size: 0.8em; padding: 0 2px; }
+.link-chip .btn-edit:hover { color: #2196F3; }
+.link-chip .btn-del { background: none; border: none; color: #ccc; cursor: pointer; font-size: 1em; padding: 0 2px; margin-left: 2px; }
+.link-chip .btn-del:hover { color: #d32f2f; }
+.link-edit-row { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px 0; }
+.link-edit-row input { border: 1px solid #ccc; background: #fff; padding: 4px 8px; font-size: 0.9em; font-family: inherit; border-radius: 3px; }
+.link-edit-row input:focus { border-color: #2196F3; outline: none; }
+.link-edit-row .le-label { width: 180px; }
+.link-edit-row .le-url { flex: 1; }
+.link-edit-row button { padding: 4px 10px; border: 1px solid #ccc; border-radius: 3px; background: #fff; cursor: pointer; font-size: 0.85em; }
+.link-edit-row button.primary { background: #2196F3; color: #fff; border-color: #2196F3; }
+.links-empty { color: #aaa; width: 100%; }
+.action-what { cursor: text; padding: 3px 4px; border: 1px solid transparent; border-radius: 3px; font-size: 0.95em; line-height: 1.4; white-space: pre-wrap; word-break: break-word; }
+.action-what:hover { border-color: #dee2e6; }
+
+</style>
+</head>
+<body>
+
+<h1>CE Safety</h1>
+<div class="subtitle">Click any field to edit. Changes auto-publish. Refresh the page to pull latest.</div>
+
+<div class="controls">
+  <button id="undoBtn" onclick="undo()" disabled style="opacity:0.4" title="Ctrl+Z">Undo</button>
+  <span style="flex:1"></span>
+  <button onclick="exportJSON()">Export JSON</button>
+  <button onclick="importJSON()">Import JSON</button>
+  <span class="save-notice" id="saveNotice">Saved</span>
+</div>
+
+<div class="sync-status" id="syncStatus"></div>
+<div style="margin-bottom:8px"><span class="settings-toggle" onclick="toggleSettings()">Settings</span></div>
+<div class="settings-panel" id="settingsPanel">
+  <div style="margin-bottom:12px;padding:8px 12px;background:#fff3e0;border-radius:4px;font-size:0.85em;color:#e65100;">To save edits, you need an ADO PAT and GitHub token. Contact <b>coffmand@hurco.com</b> for access.</div>
+  <label>ADO PAT:</label>
+  <input type="password" id="patInput" placeholder="Paste your Azure DevOps Personal Access Token" onchange="savePat(this.value)">
+  <span class="pat-status" id="patStatus"></span>
+  <div style="margin-top:6px;color:#888;font-size:0.85em">Enables work item title lookup. Stored in browser only — paste once.</div>
+  <div style="margin-top:10px">
+    <label>GitHub Token:</label>
+    <input type="password" id="ghTokenInput" placeholder="ghp_..." onchange="saveGhToken(this.value)" style="width:400px;padding:4px 8px;border:1px solid #ccc;border-radius:3px;font-family:monospace;font-size:0.9em">
+    <span class="pat-status" id="ghTokenStatus"></span>
+    <div style="margin-top:4px;color:#888;font-size:0.85em">Enables saving edits. Stored in browser only — paste once.</div>
+  </div>
+</div>
+
+<div class="section-title">Timeline <span class="toggle-btn" id="timelineToggle" onclick="toggleTimeline()">show</span></div>
+<div class="gantt-container" id="ganttContainer" style="display:none">
+  <div class="gantt" id="ganttChart"></div>
+</div>
+
+<div class="section-title">Tasks <button class="section-add" onclick="addTask()">+ Task</button> <span class="toggle-btn" onclick="toggleGroupMgr()">manage groups</span></div>
+<div class="group-mgr" id="groupMgr"></div>
+<table class="edit-table">
+  <thead><tr>
+    <th style="width:26px"></th><th>Task</th><th style="width:120px">Group</th><th style="width:130px">Start</th><th style="width:130px">End</th><th style="width:70px">%</th><th style="width:100px">ADO #</th><th style="min-width:180px">ADO Items</th><th>Notes</th><th style="width:26px"></th>
+  </tr></thead>
+  <tbody id="taskBody"></tbody>
+</table>
+
+<div class="section-title">Milestones <button class="section-add" onclick="addMilestone()">+ Milestone</button></div>
+<table class="edit-table">
+  <thead><tr>
+    <th style="width:26px"></th><th>Milestone</th><th style="width:130px">Date</th><th>Notes</th><th style="width:26px"></th>
+  </tr></thead>
+  <tbody id="milestoneBody"></tbody>
+</table>
+
+<div class="section-title">Procurement / Open Items <button class="section-add" onclick="addProcurement()">+ Procurement</button></div>
+<table class="edit-table">
+  <thead><tr>
+    <th style="width:26px"></th><th>Item</th><th style="width:120px">PO#</th><th style="width:140px">Status</th><th>Notes</th><th style="width:26px"></th>
+  </tr></thead>
+  <tbody id="procBody"></tbody>
+</table>
+
+<div class="section-title">Action Items <button class="section-add" onclick="addAction()">+ Action</button> <span class="toggle-btn" id="hideCompletedBtn" onclick="toggleHideCompleted()"></span></div>
+<table class="edit-table">
+  <thead><tr>
+    <th style="width:26px"></th><th>What</th><th style="width:140px">Who</th><th style="width:130px">Status</th><th style="width:130px">Date</th><th style="width:26px"></th>
+  </tr></thead>
+  <tbody id="actionBody"></tbody>
+</table>
+
+<div class="section-title">Important Links <button class="section-add" onclick="addLink()">+ Link</button></div>
+<div class="links-section" id="linksSection"></div>
+
+<div class="section-title">Meeting Notes <button class="section-add" onclick="addNote()">+ Meeting Note</button></div>
+<div id="notesContainer"></div>
+
+
+<div class="gantt-tooltip" id="tooltip"></div>
+<input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+// ── Default Data ──────────────────────────────────────────────
+const DEFAULT_DATA = {
+  groups: [],
+  tasks: [
+    { name: "Example Task", start: "2026-01-01", end: "2026-03-01", progress: 0, ado: "", note: "", group: "" },
+  ],
+  milestones: [],
+  procurement: [],
+  actionItems: [],
+  meetingNotes: [],
+  links: []
+};
+
+// ── State ─────────────────────────────────────────────────────
+const STORAGE_KEY = "ce_safety_gantt_data";
+let data;
+const undoStack = [];
+const MAX_UNDO = 50;
+let lastSnapshot = null;
+let syncBase = null; // Last known remote state — used for three-way merge
+let hideCompleted = false;
+
+function loadData() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      data = JSON.parse(saved);
+      sanitizeData();
+      lastSnapshot = JSON.stringify(data);
+      return;
+    }
+  } catch(e) {}
+  data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  sanitizeData();
+  lastSnapshot = JSON.stringify(data);
+}
+
+function ensureArrays() {
+  if (!data.groups) data.groups = [];
+  if (!data.actionItems) data.actionItems = [];
+  if (!data.meetingNotes) data.meetingNotes = [];
+  if (!data.links) data.links = [];
+}
+
+function s(v) { return v == null ? "" : String(v); }
+
+function sanitizeData() {
+  if (!data || typeof data !== "object") data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  if (!Array.isArray(data.groups)) data.groups = [];
+  if (!Array.isArray(data.tasks)) data.tasks = [];
+  if (!Array.isArray(data.milestones)) data.milestones = [];
+  if (!Array.isArray(data.procurement)) data.procurement = [];
+  if (!Array.isArray(data.actionItems)) data.actionItems = [];
+  if (!Array.isArray(data.meetingNotes)) data.meetingNotes = [];
+  if (!Array.isArray(data.links)) data.links = [];
+
+  data.groups = data.groups.map(g => s(g).trim()).filter(Boolean);
+  data.tasks = data.tasks.map(t => ({
+    ...t,
+    name: s(t && t.name),
+    start: s(t && t.start),
+    end: s(t && t.end),
+    progress: Number.isFinite(Number(t && t.progress)) ? Number(t.progress) : 0,
+    ado: s(t && t.ado),
+    note: s(t && t.note),
+    group: s(t && t.group)
+  }));
+  data.milestones = data.milestones.map(m => ({ ...m, name: s(m && m.name), date: s(m && m.date), note: s(m && m.note) }));
+  data.procurement = data.procurement.map(p => ({ ...p, item: s(p && p.item), po: s(p && p.po), status: s(p && p.status), note: s(p && p.note) }));
+  data.actionItems = data.actionItems.map(a => ({ ...a, what: s(a && a.what), who: s(a && a.who), status: s(a && a.status), date: s(a && a.date) }));
+  data.meetingNotes = data.meetingNotes.map(n => ({ ...n, date: s(n && n.date), notes: s(n && n.notes) }));
+  data.links = data.links.map(l => ({ ...l, label: s(l && l.label), url: s(l && l.url) }));
+}
+
+let collapsedGroups = new Set();
+let timelineVisible = false;
+function toggleTimeline() {
+  timelineVisible = !timelineVisible;
+  document.getElementById("ganttContainer").style.display = timelineVisible ? "" : "none";
+  document.getElementById("timelineToggle").textContent = timelineVisible ? "hide" : "show";
+}
+function getGroupedTasks() {
+  const groups = data.groups || [];
+  const result = [];
+  // Tasks in each group, in order
+  for (const g of groups) {
+    const tasksInGroup = data.tasks.map((t,i)=>({...t,_i:i})).filter(t=>(t.group||"")=== g);
+    if (tasksInGroup.length > 0 || true) { // always show group header
+      result.push({ type: "group", name: g, count: tasksInGroup.length });
+      if (!collapsedGroups.has(g)) {
+        result.push(...tasksInGroup.map(t=>({type:"task",...t})));
+      }
+    }
+  }
+  // Ungrouped tasks
+  const ungrouped = data.tasks.map((t,i)=>({...t,_i:i})).filter(t=>!t.group || !groups.includes(t.group));
+  if (ungrouped.length) {
+    if (groups.length > 0) result.push({ type: "group", name: "(Ungrouped)", count: ungrouped.length });
+    if (!collapsedGroups.has("(Ungrouped)")) {
+      result.push(...ungrouped.map(t=>({type:"task",...t})));
+    }
+  }
+  return result;
+}
+
+function toggleGroup(name) {
+  if (collapsedGroups.has(name)) collapsedGroups.delete(name);
+  else collapsedGroups.add(name);
+  renderGantt(); renderTasks();
+}
+
+function undo() {
+  if (!undoStack.length) return;
+  const prev = undoStack.pop();
+  lastSnapshot = prev;
+  data = JSON.parse(prev);
+  sanitizeData();
+  localStorage.setItem(STORAGE_KEY, prev);
+  updateUndoBtn();
+  renderAll();
+  flash("Undone");
+}
+
+function updateUndoBtn() {
+  const btn = document.getElementById("undoBtn");
+  if (btn) { btn.disabled = !undoStack.length; btn.style.opacity = undoStack.length ? 1 : 0.4; }
+}
+
+function flash(msg) {
+  const el = document.getElementById("saveNotice");
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(() => { el.classList.remove("show"); el.textContent = "Saved"; }, 1500);
+}
+
+let publishTimer = null;
+
+function saveData() {
+  if (lastSnapshot) {
+    undoStack.push(lastSnapshot);
+    if (undoStack.length > MAX_UNDO) undoStack.shift();
+  }
+  lastSnapshot = JSON.stringify(data);
+  localStorage.setItem(STORAGE_KEY, lastSnapshot);
+  updateUndoBtn();
+  flash("Saved");
+  if (publishTimer) clearTimeout(publishTimer);
+  publishTimer = setTimeout(() => { autoPublish(); }, 2000);
+}
+
+// ── Three-Way Merge ───────────────────────────────────────────
+function mergeItem(base, local, remote) {
+  const merged = {};
+  const allKeys = new Set([...Object.keys(local || {}), ...Object.keys(remote || {})]);
+  for (const k of allKeys) {
+    const bv = JSON.stringify((base || {})[k]);
+    const lv = JSON.stringify((local || {})[k]);
+    const rv = JSON.stringify((remote || {})[k]);
+    if (lv !== bv) { merged[k] = local[k]; }
+    else if (rv !== bv) { merged[k] = remote[k]; }
+    else { merged[k] = remote[k] !== undefined ? remote[k] : local[k]; }
+  }
+  return merged;
+}
+function mergeArray(base, local, remote) {
+  const result = [];
+  const maxLen = Math.max(local.length, remote.length);
+  const baseLen = base.length;
+  for (let i = 0; i < maxLen; i++) {
+    const b = i < baseLen ? base[i] : null;
+    const l = i < local.length ? local[i] : null;
+    const r = i < remote.length ? remote[i] : null;
+    if (l && r) { result.push(b ? mergeItem(b, l, r) : l); }
+    else if (l && !r) {
+      if (!b) { result.push(l); }
+      else if (JSON.stringify(l) !== JSON.stringify(b)) { result.push(l); }
+    } else if (!l && r) {
+      if (!b) { result.push(r); }
+      else if (JSON.stringify(r) !== JSON.stringify(b)) { result.push(r); }
+    }
+  }
+  return result;
+}
+function mergeData(base, local, remote) {
+  if (!base) return local;
+  const merged = JSON.parse(JSON.stringify(local));
+  for (const key of new Set([...Object.keys(local), ...Object.keys(remote)])) {
+    if (Array.isArray(local[key]) || Array.isArray(remote[key])) {
+      merged[key] = mergeArray(base[key] || [], local[key] || [], remote[key] || []);
+    } else if (typeof local[key] === 'object' && local[key] !== null) {
+      merged[key] = mergeItem(base[key] || {}, local[key] || {}, remote[key] || {});
+    } else {
+      if (JSON.stringify(local[key]) !== JSON.stringify(base[key])) { merged[key] = local[key]; }
+      else { merged[key] = remote[key]; }
+    }
+  }
+  return merged;
+}
+
+async function autoPublish() {
+  const ghToken = localStorage.getItem(GH_TOKEN_KEY);
+  if (!ghToken) { setSyncStatus("No GitHub token — saved locally only", true); return; }
+  setSyncStatus("Merging & publishing...");
+  try {
+    let remote = null;
+    try {
+      const pullResp = await fetch(GH_RAW_URL + "?t=" + Date.now());
+      if (pullResp.ok) { remote = await pullResp.json(); }
+    } catch(e) {}
+    let toPublish = data;
+    if (remote && remote.tasks) {
+      toPublish = mergeData(syncBase, data, remote);
+      data = toPublish;
+      sanitizeData();
+      lastSnapshot = JSON.stringify(data);
+      localStorage.setItem(STORAGE_KEY, lastSnapshot);
+      renderAll();
+    }
+    // Get current file SHA (required for GitHub updates)
+    const metaResp = await fetch(GH_API_URL, { headers: { "Authorization": "token " + ghToken } });
+    let sha = null;
+    if (metaResp.ok) { sha = (await metaResp.json()).sha; }
+    const body = { message: "auto-sync", content: btoa(unescape(encodeURIComponent(JSON.stringify(toPublish, null, 2)))) };
+    if (sha) body.sha = sha;
+    const resp = await fetch(GH_API_URL, {
+      method: "PUT",
+      headers: { "Authorization": "token " + ghToken, "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (resp.ok) {
+      syncBase = JSON.parse(JSON.stringify(toPublish));
+      setSyncStatus("Synced — " + new Date().toLocaleTimeString());
+    } else {
+      console.error("Sync failed:", await resp.text());
+      setSyncStatus("Sync failed: " + resp.status, true);
+    }
+  } catch(e) {
+    setSyncStatus("Sync failed: " + e.message, true);
+  }
+}
+
+// ── Gantt Rendering ───────────────────────────────────────────
+const CHART_START = new Date("2026-01-01");
+const CHART_END = new Date("2026-08-01");
+const TOTAL_DAYS = (CHART_END - CHART_START) / 86400000;
+
+function dayOffset(dateStr) { return (new Date(dateStr) - CHART_START) / 86400000; }
+function pct(days) { return (days / TOTAL_DAYS * 100).toFixed(3) + "%"; }
+
+function renderGantt() {
+  const g = document.getElementById("ganttChart");
+  const months = [];
+  let d = new Date(CHART_START);
+  while (d < CHART_END) { months.push(d.toLocaleString("en",{month:"short",year:"numeric"})); d = new Date(d.getFullYear(),d.getMonth()+1,1); }
+  const today = new Date();
+  const todayPct = (today - CHART_START) / 86400000 / TOTAL_DAYS * 100;
+  const showToday = todayPct >= 0 && todayPct <= 100;
+  let html = `<div class="gantt-header"><div class="gantt-label-col">Task</div><div class="gantt-bar-col" style="position:relative"><div class="gantt-months">${months.map(m=>`<div class="gantt-month">${m}</div>`).join("")}</div>${showToday?`<div style="position:absolute;bottom:-2px;left:${todayPct}%;transform:translateX(-50%);font-size:0.7em;color:#d32f2f;z-index:6">Today</div>`:""}</div></div>`;
+  const grouped = getGroupedTasks();
+  grouped.forEach(item => {
+    if (item.type === "group") {
+      const gname = s(item.name);
+      const arrow = collapsedGroups.has(gname) ? "&#9654;" : "&#9660;";
+      html += `<div class="gantt-group" onclick="toggleGroup('${gname.replace(/'/g,"\\'")}')"><div class="gantt-group-label"><span class="gantt-group-toggle">${arrow}</span> ${gname} (${item.count})</div><div style="flex:1"></div></div>`;
+      return;
+    }
+    const t = item;
+    const off = dayOffset(t.start), dur = Math.max(1, dayOffset(t.end) - off);
+    const cls = t.progress >= 99 ? "complete" : t.progress > 0 ? "in-progress" : "not-started";
+    html += `<div class="gantt-row"><div class="gantt-row-label" title="${t.name}">${t.name}</div><div class="gantt-row-bars">${showToday?`<div class="gantt-today" style="left:${todayPct}%"></div>`:""}<div class="gantt-bar ${cls}" style="left:${pct(off)};width:${pct(dur)}" data-tip="${t.name}\n${t.start} \u2192 ${t.end}\nProgress: ${t.progress}%${t.note?'\n'+t.note:''}"><div class="gantt-bar-progress" style="width:${Math.min(100,t.progress)}%"></div></div></div></div>`;
+  });
+  if (data.milestones && data.milestones.length) {
+    html += `<div class="gantt-section"><div class="gantt-section-label">Milestones</div><div style="flex:1"></div></div>`;
+    data.milestones.forEach(m => {
+      const off = dayOffset(m.date);
+      html += `<div class="gantt-row"><div class="gantt-row-label" title="${m.name}">${m.name}</div><div class="gantt-row-bars">${showToday?`<div class="gantt-today" style="left:${todayPct}%"></div>`:""}<div class="gantt-bar milestone" style="left:calc(${pct(off)} - 6px)" data-tip="${m.name}\n${m.date}${m.note?'\n'+m.note:''}"></div></div></div>`;
+    });
+  }
+  g.innerHTML = html;
+  const tooltip = document.getElementById("tooltip");
+  g.querySelectorAll("[data-tip]").forEach(el => {
+    el.addEventListener("mouseenter",()=>{tooltip.textContent=el.dataset.tip;tooltip.style.display="block";});
+    el.addEventListener("mousemove",e=>{tooltip.style.left=(e.clientX+12)+"px";tooltip.style.top=(e.clientY-30)+"px";});
+    el.addEventListener("mouseleave",()=>{tooltip.style.display="none";});
+  });
+}
+
+// ── Table Helpers ─────────────────────────────────────────────
+function inp(type,val,onch,extra="") {
+  const v = val==null?"":String(val).replace(/"/g,"&quot;");
+  return `<input type="${type}" value="${v}" onchange="${onch}" ${extra}>`;
+}
+function adoCell(ids,i) {
+  const v = ids||"";
+  return `<td><div class="ado-id-wrap">${inp("text",v,`utAdo(${i},this.value)`,'placeholder="61857,63220"')}</div></td>`;
+}
+function adoTitleCell(task) {
+  const v=task.ado||""; const ids=v.split(",").map(s=>s.trim()).filter(Boolean);
+  if(!ids.length) return `<td class="ado-titles"></td>`;
+  const parts=ids.map(id=>{
+    if(adoTitleCache[id]===undefined) return `<span class="fetching">loading...</span>`;
+    if(adoTitleCache[id]===null) return `<a class="ado-link" href="https://dev.azure.com/hurco/Eng/_workitems/edit/${id}" target="_blank">#${id}</a> <span class="error">(not found)</span>`;
+    return `<a class="ado-link" href="https://dev.azure.com/hurco/Eng/_workitems/edit/${id}" target="_blank">#${id}</a> ${adoTitleCache[id]}`;
+  });
+  return `<td class="ado-titles">${parts.join("<br>")}</td>`;
+}
+function moveBtns(upFn,downFn,i,len) {
+  const up=i>0?`<button class="btn-move" onclick="${upFn}(${i})">&#9650;</button>`:`<button class="btn-move" style="visibility:hidden">&#9650;</button>`;
+  const dn=i<len-1?`<button class="btn-move" onclick="${downFn}(${i})">&#9660;</button>`:`<button class="btn-move" style="visibility:hidden">&#9660;</button>`;
+  return `<td><div class="move-cell">${up}${dn}</div></td>`;
+}
+
+// ── Render Functions ──────────────────────────────────────────
+function groupSelect(i, current) {
+  const groups = data.groups || [];
+  const opts = [`<option value=""${!current?' selected':''}>(none)</option>`];
+  groups.forEach(g => { const gs = s(g); opts.push(`<option value="${gs.replace(/"/g,'&quot;')}"${current===gs?' selected':''}>${gs}</option>`); });
+  return `<select onchange="ut(${i},'group',this.value)" style="width:110px">${opts.join("")}</select>`;
+}
+
+function renderTasks() {
+  const grouped = getGroupedTasks();
+  const n = data.tasks.length;
+  document.getElementById("taskBody").innerHTML = grouped.map(item => {
+    if (item.type === "group") {
+      const gname = s(item.name);
+      const arrow = collapsedGroups.has(gname) ? "&#9654;" : "&#9660;";
+      return `<tr class="group-header-row" onclick="toggleGroup('${gname.replace(/'/g,"\\'")}')"><td colspan="10" style="cursor:pointer"><span style="font-size:0.75em;margin-right:4px">${arrow}</span>${gname} (${item.count})</td></tr>`;
+    }
+    const t = item, i = item._i;
+    return `<tr>
+    ${moveBtns('mtUp','mtDn',i,n)}
+    <td>${inp("text",t.name,`ut(${i},'name',this.value)`)}</td>
+    <td>${groupSelect(i, t.group||"")}</td>
+    <td>${inp("date",t.start,`ut(${i},'start',this.value)`)}</td>
+    <td>${inp("date",t.end,`ut(${i},'end',this.value)`)}</td>
+    <td>${inp("number",t.progress,`ut(${i},'progress',+this.value)`,'min="0" max="100" step="5"')}</td>
+    ${adoCell(t.ado,i)} ${adoTitleCell(t)}
+    <td>${inp("text",t.note,`ut(${i},'note',this.value)`)}</td>
+    <td><button class="btn-del" onclick="dt(${i})">&times;</button></td>
+  </tr>`;
+  }).join("");
+}
+
+function renderMilestones() {
+  const ms=data.milestones||[]; const n=ms.length;
+  document.getElementById("milestoneBody").innerHTML=ms.map((m,i)=>`<tr>
+    ${moveBtns('mmUp','mmDn',i,n)}
+    <td>${inp("text",m.name,`um(${i},'name',this.value)`)}</td>
+    <td>${inp("date",m.date,`um(${i},'date',this.value)`)}</td>
+    <td>${inp("text",m.note,`um(${i},'note',this.value)`)}</td>
+    <td><button class="btn-del" onclick="dm(${i})">&times;</button></td>
+  </tr>`).join("");
+}
+
+function renderProcurement() {
+  const n=data.procurement.length;
+  document.getElementById("procBody").innerHTML=data.procurement.map((p,i)=>`<tr>
+    ${moveBtns('mpUp','mpDn',i,n)}
+    <td>${inp("text",p.item,`upr(${i},'item',this.value)`)}</td>
+    <td>${inp("text",p.po||"",`upr(${i},'po',this.value)`,'placeholder="PO#"')}</td>
+    <td>${inp("text",p.status||"",`upr(${i},'status',this.value)`,'placeholder="status"')}</td>
+    <td>${inp("text",p.note,`upr(${i},'note',this.value)`)}</td>
+    <td><button class="btn-del" onclick="dpr(${i})">&times;</button></td>
+  </tr>`).join("");
+}
+
+function renderActions() {
+  // Sort: open items first, done items at bottom
+  const items = data.actionItems || [];
+  const sorted = items.map((a,i)=>({...a,_i:i}));
+  sorted.sort((a,b) => {
+    const ad = a.status==="Done"?1:0, bd = b.status==="Done"?1:0;
+    return ad - bd;
+  });
+  // Build index map for handlers
+  const btn = document.getElementById("hideCompletedBtn");
+  btn.textContent = hideCompleted ? "show completed" : "hide completed";
+  const statusOpts = ["Open","In Progress","Done"];
+  document.getElementById("actionBody").innerHTML = sorted.map(a => {
+    const i = a._i;
+    const isDone = a.status === "Done";
+    if (hideCompleted && isDone) return "";
+    const cls = isDone ? ' class="done-row"' : "";
+    const selHtml = `<select onchange="ua(${i},'status',this.value)">${statusOpts.map(s=>`<option value="${s}"${a.status===s?' selected':''}>${s}</option>`).join("")}</select>`;
+    return `<tr${cls}>
+      <td><div class="move-cell">
+        <button class="btn-move" onclick="maUp(${i})">&#9650;</button>
+        <button class="btn-move" onclick="maDn(${i})">&#9660;</button>
+      </div></td>
+      <td><div class="action-what" onclick="editActionWhat(${i},this)"><span class="action-what-text">${linkifyAdo((a.what||"").replace(/</g,"&lt;"))}</span></div></td>
+      <td>${inp("text",a.who,`ua(${i},'who',this.value)`,'placeholder="owner"')}</td>
+      <td>${selHtml}</td>
+      <td>${inp("date",a.date,`ua(${i},'date',this.value)`)}</td>
+      <td><button class="btn-del" onclick="da(${i})">&times;</button></td>
+    </tr>`;
+  }).join("");
+}
+
+let openNotes = new Set();
+
+function toggleNote(i) {
+  if (openNotes.has(i)) openNotes.delete(i); else openNotes.add(i);
+  renderNotes();
+}
+
+function renderNotes() {
+  const notes = data.meetingNotes || [];
+  const container = document.getElementById("notesContainer");
+  if (!notes.length) { container.innerHTML = '<div style="color:#aaa;font-size:0.85em;padding:8px">No meeting notes yet. Click "+ Meeting Note" to add.</div>'; return; }
+  container.innerHTML = notes.map((n,i) => {
+    const isOpen = openNotes.has(i);
+    const arrow = isOpen ? "&#9660;" : "&#9654;";
+    const preview = (n.notes||"").replace(/\n/g," ").substring(0,80);
+    const escapedNotes = (n.notes||"").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+    return `<div class="note-card">
+      <div class="note-card-header" onclick="toggleNote(${i})">
+        <span class="note-toggle">${arrow}</span>
+        <span class="note-date">${n.date||"No date"}</span>
+        <span class="note-preview">${isOpen ? "" : preview}${!isOpen && preview.length>=80?"...":""}</span>
+      </div>
+      <div class="note-card-body${isOpen?" open":""}">
+        <div class="note-card-actions">
+          <input type="date" value="${n.date||""}" onchange="un(${i},'date',this.value)">
+          <button onclick="mnUp(${i})" title="Move up">&#9650;</button>
+          <button onclick="mnDn(${i})" title="Move down">&#9660;</button>
+          <span style="flex:1"></span>
+          <button onclick="dn(${i})" title="Delete note" style="color:#d32f2f">Delete</button>
+        </div>
+        <textarea onchange="un(${i},'notes',this.value)">${escapedNotes}</textarea>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+let editingLink = -1;
+
+function renderLinks() {
+  const links = data.links || [];
+  const sec = document.getElementById("linksSection");
+  if (!links.length) { sec.innerHTML = '<div class="links-empty">No links yet. Click "+ Link" to add.</div>'; return; }
+  sec.innerHTML = links.map((l,i) => {
+    if (editingLink === i) {
+      return `<div class="link-edit-row">
+        <input class="le-label" type="text" id="leLabel${i}" value="${(l.label||"").replace(/"/g,"&quot;")}" placeholder="Label">
+        <input class="le-url" type="text" id="leUrl${i}" value="${(l.url||"").replace(/"/g,"&quot;")}" placeholder="https://...">
+        <button class="primary" onclick="saveLink(${i})">Save</button>
+        <button onclick="cancelEditLink()">Cancel</button>
+        <button class="btn-del" onclick="dl(${i})" style="color:#d32f2f">&times;</button>
+      </div>`;
+    }
+    const label = l.label || l.url || "Untitled";
+    return `<div class="link-chip">
+      ${l.url ? `<a href="${l.url}" target="_blank">${label}</a>` : `<span>${label}</span>`}
+      <button class="btn-edit" onclick="editLink(${i})" title="Edit">&#9998;</button>
+      <button class="btn-del" onclick="dl(${i})">&times;</button>
+    </div>`;
+  }).join("");
+}
+
+function editLink(i) { editingLink = i; renderLinks(); }
+function cancelEditLink() { editingLink = -1; renderLinks(); }
+function saveLink(i) {
+  data.links[i].label = document.getElementById("leLabel"+i).value;
+  data.links[i].url = document.getElementById("leUrl"+i).value;
+  editingLink = -1;
+  saveData(); renderLinks();
+}
+function addLink() {
+  ensureArrays();
+  data.links.push({label:"",url:""}); saveData();
+  editingLink = data.links.length - 1; // auto-open edit for new link
+  renderLinks();
+}
+
+function renderGroupMgr() {
+  const mgr = document.getElementById("groupMgr");
+  const groups = data.groups || [];
+  let html = groups.map((g,i) => `<div class="gm-row">
+    <button onclick="gmUp(${i})" ${i===0?'style="visibility:hidden"':''}>&#9650;</button>
+    <button onclick="gmDn(${i})" ${i===groups.length-1?'style="visibility:hidden"':''}>&#9660;</button>
+    <input type="text" value="${s(g).replace(/"/g,'&quot;')}" onchange="gmRename(${i},this.value)">
+    <button class="gm-del" onclick="gmDel(${i})" title="Delete group (tasks become ungrouped)">&times;</button>
+    <span style="color:#999;font-size:0.8em">${data.tasks.filter(t=>(t.group||"")===g).length} tasks</span>
+  </div>`).join("");
+  html += `<div class="gm-add"><button onclick="gmAdd()" style="padding:4px 10px;border:1px solid #ccc;border-radius:3px;background:#fff;cursor:pointer;font-size:0.85em">+ Add Group</button></div>`;
+  mgr.innerHTML = html;
+}
+
+function toggleGroupMgr() {
+  const mgr = document.getElementById("groupMgr");
+  mgr.classList.toggle("open");
+  if (mgr.classList.contains("open")) renderGroupMgr();
+}
+
+function gmAdd() {
+  const name = prompt("Group name:");
+  if (!name || !name.trim()) return;
+  if (!data.groups) data.groups = [];
+  if (data.groups.includes(name.trim())) { alert("Group already exists"); return; }
+  data.groups.push(name.trim());
+  saveData(); renderGroupMgr(); renderTasks(); renderGantt();
+}
+
+function gmDel(i) {
+  const name = data.groups[i];
+  // Ungroup tasks in this group
+  data.tasks.forEach(t => { if (t.group === name) t.group = ""; });
+  data.groups.splice(i, 1);
+  collapsedGroups.delete(name);
+  saveData(); renderGroupMgr(); renderAll();
+}
+
+function gmRename(i, newName) {
+  if (!newName.trim()) return;
+  const oldName = data.groups[i];
+  data.tasks.forEach(t => { if (t.group === oldName) t.group = newName.trim(); });
+  data.groups[i] = newName.trim();
+  if (collapsedGroups.has(oldName)) { collapsedGroups.delete(oldName); collapsedGroups.add(newName.trim()); }
+  saveData(); renderGroupMgr(); renderAll();
+}
+
+function gmUp(i) { if(i<1) return; [data.groups[i],data.groups[i-1]]=[data.groups[i-1],data.groups[i]]; saveData(); renderGroupMgr(); renderAll(); }
+function gmDn(i) { if(i>=data.groups.length-1) return; [data.groups[i],data.groups[i+1]]=[data.groups[i+1],data.groups[i]]; saveData(); renderGroupMgr(); renderAll(); }
+
+function renderAll() { ensureArrays(); renderGantt(); renderTasks(); renderMilestones(); renderProcurement(); renderActions(); renderNotes(); renderLinks(); requestAnimationFrame(autoGrow); }
+function autoGrow() { document.querySelectorAll('.auto-grow').forEach(el => { el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }); }
+
+// ── Update Handlers ───────────────────────────────────────────
+function ut(i,f,v) { data.tasks[i][f]=v; saveData(); if(f==='ado') renderTasks(); renderGantt(); }
+function um(i,f,v) { data.milestones[i][f]=v; saveData(); renderGantt(); }
+function upr(i,f,v) { data.procurement[i][f]=v; saveData(); }
+function ua(i,f,v) { data.actionItems[i][f]=v; saveData(); if(f==='status'||f==='what') renderActions(); requestAnimationFrame(autoGrow); }
+
+function linkifyAdo(text) {
+  return text.replace(/#(\d{4,6})/g, '<a class="ado-link" href="https://dev.azure.com/hurco/Eng/_workitems/edit/$1" target="_blank" onclick="event.stopPropagation()">#$1</a>');
+}
+
+function editActionWhat(i, el) {
+  // Don't enter edit mode if they clicked a link or already editing
+  if (event.target.tagName === 'A') return;
+  if (el.querySelector('textarea')) return;
+  const text = data.actionItems[i].what || '';
+  el.innerHTML = `<textarea class="auto-grow" rows="1" style="overflow:hidden;min-height:24px;width:100%" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'" onblur="ua(${i},'what',this.value)" onclick="event.stopPropagation()">${text.replace(/</g,'&lt;')}</textarea>`;
+  const ta = el.querySelector('textarea');
+  ta.style.height = 'auto';
+  ta.style.height = ta.scrollHeight + 'px';
+  ta.focus();
+}
+function un(i,f,v) { data.meetingNotes[i][f]=v; saveData(); }
+function ul(i,f,v) { data.links[i][f]=v; saveData(); renderLinks(); }
+
+function dt(i) { data.tasks.splice(i,1); saveData(); renderAll(); }
+function dm(i) { data.milestones.splice(i,1); saveData(); renderAll(); }
+function dpr(i) { data.procurement.splice(i,1); saveData(); renderAll(); }
+function da(i) { data.actionItems.splice(i,1); saveData(); renderAll(); }
+function dn(i) { data.meetingNotes.splice(i,1); saveData(); renderAll(); }
+function dl(i) { data.links.splice(i,1); saveData(); renderAll(); }
+
+function swap(arr,a,b) { if(a<0||b<0||a>=arr.length||b>=arr.length) return; [arr[a],arr[b]]=[arr[b],arr[a]]; saveData(); renderAll(); }
+function mtUp(i) { swap(data.tasks,i,i-1); }
+function mtDn(i) { swap(data.tasks,i,i+1); }
+function mmUp(i) { swap(data.milestones,i,i-1); }
+function mmDn(i) { swap(data.milestones,i,i+1); }
+function mpUp(i) { swap(data.procurement,i,i-1); }
+function mpDn(i) { swap(data.procurement,i,i+1); }
+function maUp(i) { swap(data.actionItems,i,i-1); }
+function maDn(i) { swap(data.actionItems,i,i+1); }
+function mnUp(i) { swap(data.meetingNotes,i,i-1); }
+function mnDn(i) { swap(data.meetingNotes,i,i+1); }
+
+function addTask() {
+  const t=new Date().toISOString().slice(0,10), e=new Date(Date.now()+14*864e5).toISOString().slice(0,10);
+  data.tasks.push({name:"New Task",start:t,end:e,progress:0,ado:"",note:"",group:""}); saveData(); renderAll();
+}
+function addMilestone() {
+  ensureArrays();
+  data.milestones.push({name:"New Milestone",date:new Date().toISOString().slice(0,10),note:""}); saveData(); renderAll();
+}
+function addProcurement() { data.procurement.push({item:"New Item",po:"",status:"",note:""}); saveData(); renderAll(); }
+function addAction() {
+  ensureArrays();
+  data.actionItems.push({what:"",who:"",status:"Open",date:new Date().toISOString().slice(0,10)}); saveData(); renderAll();
+}
+function addNote() {
+  ensureArrays();
+  // Insert at top (newest first)
+  data.meetingNotes.unshift({date:new Date().toISOString().slice(0,10),notes:""});
+  // Shift all open indices down by 1 since we inserted at top
+  const newOpen = new Set();
+  openNotes.forEach(i => newOpen.add(i+1));
+  newOpen.add(0); // auto-open the new note
+  openNotes = newOpen;
+  saveData(); renderAll();
+}
+// addLink is defined in renderLinks section
+
+function toggleHideCompleted() {
+  hideCompleted = !hideCompleted;
+  renderActions();
+}
+
+// ── Import / Export ───────────────────────────────────────────
+function exportJSON() {
+  const b=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(b); a.download="ce-safety-timeline-"+new Date().toISOString().slice(0,10)+".json"; a.click();
+}
+function importJSON() { document.getElementById("fileInput").click(); }
+function handleImport(e) {
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=function(ev){
+    try{const d=JSON.parse(ev.target.result);if(d.tasks){data=d;ensureArrays();saveData();renderAll();}else{alert("Invalid: no tasks key");}}
+    catch(err){alert("Parse error: "+err.message);}
+  };
+  r.readAsText(f); e.target.value="";
+}
+
+
+// ── ADO Title Fetch ───────────────────────────────────────────
+const ADO_PAT_KEY = "ce_safety_gantt_data_ado_pat";
+const ADO_TITLE_CACHE_KEY = "ce_safety_gantt_data_ado_titles";
+const BAKED_TITLES = {
+  "58647": "CE Safety Compliance - EU Machinery Directive 2006/42/EC - EU Regulation 2023/1230",
+  "10876": "Safety PLC Hardware",
+  "26888": "Safety PLC Integration Schematic",
+  "62597": "Safety PLC - CE Requirements & Constraints Discovery",
+  "62602": "Safety PLC - Machine Integration and Testing",
+  "62620": "Safety PLC - Test in Machine with Rexroth ctrlX Drives",
+  "62621": "Safety PLC - Test in Machine with Yaskawa Sigma-X Drives",
+  "62625": "Safety PLC - PLC Program Development",
+  "62626": "Safety PLC - Create first Yaskawa Sigma-X PLC program",
+  "62627": "Safety PLC - Create first Rexroth ctrlX PLC program",
+  "62628": "Safety PLC - Safety PLC Hardware",
+  "62630": "(RT) Safety PLC Hardware - Add ECAT Device Support",
+  "62640": "Safety PLC - Create retrofit kits",
+  "62648": "Safety PLC - Beta Testing with Customer Installs",
+  "63886": "Safety PLC - Does Z axis require brake?",
+  "64593": "Delta FSoE investigation and SIL2 SLS support for CE",
+  "67900": "Is the gennertec replacement that LCM wants to use compliant for 2024 and when will it be implemented",
+  "67902": "VCX Renishaw",
+  "68200": "CE investigate needs for Coded door interlocks on CE machine for next machinery directive",
+  "42780": "Tool position jumps when shutting door",
+  "56752": "(CE) Spindle drive overspeed warning",
+  "65533": "Taiwan Safety Compliance - add yellow background to console estop",
+  "67938": "Create Line Filter kits for VM Machines",
+  "68050": "Chip Auger CE Conformance",
+  "68052": "EN ISO 16090-1:2018 Replacing EN12417:2001",
+  "68060": "Machine Will Run With Manual Release Active on Door Switch",
+  "68063": "Manual Instructions for Persons Trapped in Machine",
+  "68065": "Pinch Point Needs Sticker",
+  "68074": "Side Doors Hardware Not Allowed To Be Removable",
+  "69573": "CE safety PLC questions from HML",
+  "72188": "Retrofit Kit for Machines not yet imported into Europe"
+};
+let adoTitleCache = {};
+function loadAdoCache() {
+  try{adoTitleCache=JSON.parse(localStorage.getItem(ADO_TITLE_CACHE_KEY)||"{}");}catch(e){adoTitleCache={};}
+  for(const[id,title] of Object.entries(BAKED_TITLES)){if(adoTitleCache[id]===undefined||adoTitleCache[id]===null) adoTitleCache[id]=title;}
+}
+function saveAdoCache(){localStorage.setItem(ADO_TITLE_CACHE_KEY,JSON.stringify(adoTitleCache));}
+const EMBEDDED_PAT = "";
+function getPat(){return localStorage.getItem(ADO_PAT_KEY)||EMBEDDED_PAT;}
+function savePat(v){
+  localStorage.setItem(ADO_PAT_KEY,v);
+  document.getElementById("patStatus").textContent=v?"Saved (override)":"Using default";
+  document.getElementById("patStatus").style.color=v?"#4CAF50":"#999";
+  fetchAllMissingTitles();
+}
+function toggleSettings(){
+  const p=document.getElementById("settingsPanel"); p.classList.toggle("open");
+  if(p.classList.contains("open")){const pat=getPat();document.getElementById("patInput").value=pat;document.getElementById("patStatus").textContent=pat?"Configured":"Not set";document.getElementById("patStatus").style.color=pat?"#4CAF50":"#999";}
+}
+async function fetchAdoTitle(id){
+  const pat=getPat(); if(!pat) return; if(adoTitleCache[id]!==undefined) return;
+  adoTitleCache[id]=undefined;
+  try{const resp=await fetch(`https://dev.azure.com/hurco/Eng/_apis/wit/workitems/${id}?fields=System.Title&api-version=7.1`,{headers:{"Authorization":"Basic "+btoa(":"+pat)}});
+    if(resp.ok){const json=await resp.json();adoTitleCache[id]=json.fields["System.Title"];}else{adoTitleCache[id]=null;}
+  }catch(e){adoTitleCache[id]=null;}
+  saveAdoCache(); renderTasks();
+}
+function fetchAllMissingTitles(){data.tasks.forEach(t=>{(t.ado||"").split(",").map(s=>s.trim()).filter(Boolean).forEach(id=>{if(adoTitleCache[id]===undefined)fetchAdoTitle(id);});});}
+function utAdo(i,v){data.tasks[i].ado=v;saveData();v.split(",").map(s=>s.trim()).filter(Boolean).forEach(id=>{if(adoTitleCache[id]===undefined)fetchAdoTitle(id);});renderTasks();renderGantt();}
+
+// ── Shared Data (HF Space repo) ───────────────────────────────
+const GH_REPO = "coffmandhurco/ce-safety-timeline";
+const GH_TOKEN_KEY = "ce_safety_gh_token";
+const GH_RAW_URL = `https://raw.githubusercontent.com/${GH_REPO}/main/data.json`;
+const GH_API_URL = `https://api.github.com/repos/${GH_REPO}/contents/data.json`;
+
+function setSyncStatus(msg,warn){const el=document.getElementById("syncStatus");el.innerHTML=warn?`<span class="warn">${msg}</span>`:msg;}
+
+async function loadRemote(){
+  setSyncStatus("Pulling latest...");
+  try{const resp=await fetch(GH_RAW_URL+"?t="+Date.now());
+    if(resp.ok){const remote=await resp.json();if(remote.tasks){data=remote;sanitizeData();syncBase=JSON.parse(JSON.stringify(data));lastSnapshot=JSON.stringify(data);localStorage.setItem(STORAGE_KEY,lastSnapshot);renderAll();fetchAllMissingTitles();setSyncStatus("Pulled latest — "+new Date().toLocaleTimeString());return true;}}
+    setSyncStatus("No shared data yet — using local",true); return false;
+  }catch(e){setSyncStatus("Offline — using local data",true);return false;}
+}
+
+function saveGhToken(v){localStorage.setItem(GH_TOKEN_KEY,v);document.getElementById("ghTokenStatus").textContent=v?"Saved":"Cleared";document.getElementById("ghTokenStatus").style.color=v?"#4CAF50":"#999";}
+
+// Update toggleSettings to also load GH token
+var _origToggleSettings = toggleSettings;
+toggleSettings = function(){
+  _origToggleSettings();
+  const p=document.getElementById("settingsPanel");
+  if(p.classList.contains("open")){
+    const gt=localStorage.getItem(GH_TOKEN_KEY)||"";
+    document.getElementById("ghTokenInput").value=gt;
+    document.getElementById("ghTokenStatus").textContent=gt?"Configured":"Not set";
+    document.getElementById("ghTokenStatus").style.color=gt?"#4CAF50":"#999";
+  }
+};
+
+// ── Keyboard Shortcuts ────────────────────────────────────────
+document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key==="z"&&!e.shiftKey){if(document.activeElement&&(document.activeElement.tagName==="INPUT"||document.activeElement.tagName==="TEXTAREA")) return;e.preventDefault();undo();}});
+
+// ── Init ──────────────────────────────────────────────────────
+loadData(); ensureArrays(); loadAdoCache(); renderAll(); fetchAllMissingTitles(); loadRemote();
+</script>
+</body>
+</html>
